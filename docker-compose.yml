@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: brainbolt-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: brainbolt
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - brainbolt-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: brainbolt-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - brainbolt-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brainbolt-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - brainbolt-network
+    command: sh -c "npm run seed && npm start"
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  brainbolt-network:
+    driver: bridge
