@@ -286,8 +286,8 @@ export async function getUserMetrics(userId: string): Promise<UserMetrics> {
   };
 }
 
-/**
- * Create a new session
+/*
+a new session
  */
 export function createSession(): string {
   return nanoid();

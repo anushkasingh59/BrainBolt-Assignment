@@ -28,15 +28,15 @@ async function seed() {
       { $sort: { _id: 1 } },
     ]);
 
-    console.log('\n📊 Questions by difficulty:');
+    console.log('\n Questions by difficulty:');
     distribution.forEach((item) => {
       console.log(`   Difficulty ${item._id}: ${item.count} questions`);
     });
 
-    console.log('\n✨ Seeding completed successfully!');
+    console.log('\n Seeding completed successfully!');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Seeding failed:', error);
+    console.error(' Seeding failed:', error);
     process.exit(1);
   }
 }
