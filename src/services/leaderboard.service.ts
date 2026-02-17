@@ -39,15 +39,27 @@ export async function getScoreLeaderboard(
   const topUsers = await UserState.find()
     .sort({ totalScore: -1 })
     .limit(1000) // Cache top 1000
-    .populate('userId', 'username')
+    // .populate('userId', 'username')
     .lean();
 
-  const leaderboard: LeaderboardEntry[] = topUsers.map((user, index) => ({
-    userId: user.userId,
-    username: (user.userId as any).username || 'Anonymous',
-    score: user.totalScore,
-    rank: index + 1,
-  }));
+  // const leaderboard: LeaderboardEntry[] = topUsers.map((user, index) => ({
+  //   userId: user.userId,
+  //   username: (user.userId as any).username || 'Anonymous',
+  //   score: user.totalScore,
+  //   rank: index + 1,
+  // }));
+    const leaderboard: LeaderboardEntry[] = await Promise.all(
+    topUsers.map(async (state, index) => {
+      const user = await User.findOne({ externalId: state.userId }).lean<{ username: string }>();
+
+      return {
+        userId: state.userId,
+        username: user?.username || 'Anonymous',
+        score: state.totalScore,
+        rank: index + 1,
+      };
+    })
+  );
 
   // Cache the result
   try {
@@ -107,15 +119,28 @@ export async function getStreakLeaderboard(
   const topUsers = await UserState.find()
     .sort({ maxStreak: -1 })
     .limit(1000) // Cache top 1000
-    .populate('userId', 'username')
+    // .populate('userId', 'username')
     .lean();
 
-  const leaderboard: LeaderboardEntry[] = topUsers.map((user, index) => ({
-    userId: user.userId,
-    username: (user.userId as any).username || 'Anonymous',
-    streak: user.maxStreak,
-    rank: index + 1,
-  }));
+  // const leaderboard: LeaderboardEntry[] = topUsers.map((user, index) => ({
+  //   userId: user.userId,
+  //   username: (user.userId as any).username || 'Anonymous',
+  //   streak: user.maxStreak,
+  //   rank: index + 1,
+  // }));
+
+  const leaderboard: LeaderboardEntry[] = await Promise.all(
+  topUsers.map(async (state, index) => {
+    const user = await User.findOne({ externalId: state.userId }).lean<{ username: string }>();
+
+    return {
+      userId: state.userId,
+      username: user?.username || 'Anonymous',
+      streak: state.maxStreak,
+      rank: index + 1,
+    };
+  })
+);
 
   // Cache the result
   try {

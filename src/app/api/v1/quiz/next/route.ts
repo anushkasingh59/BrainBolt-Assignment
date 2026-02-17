@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     // Get userId from query params
     const searchParams = request.nextUrl.searchParams;
     const userId = searchParams.get('userId');
+    const username = searchParams.get('username');
     const sessionId = searchParams.get('sessionId');
 
     if (!userId) {

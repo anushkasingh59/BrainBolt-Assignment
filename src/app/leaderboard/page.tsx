@@ -37,9 +37,9 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = async (showLoader = false) => {
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       setError(null);
 
       const endpoint = type === 'score' ? 'score' : 'streak';
@@ -60,8 +60,16 @@ export default function LeaderboardPage() {
   };
 
   useEffect(() => {
+  // Initial fetch
+  fetchLeaderboard(true);
+
+  // Poll every 9 seconds
+  const interval = setInterval(() => {
     fetchLeaderboard();
-  }, [type]);
+  }, 9000);
+
+  return () => clearInterval(interval);
+}, [type]);
 
   const getRankBadge = (rank: number) => {
     if (rank === 1) return { emoji: '🥇', variant: 'default' as const };
@@ -135,7 +143,7 @@ export default function LeaderboardPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={fetchLeaderboard}
+                onClick={() => fetchLeaderboard(true)}
                 disabled={loading}
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -152,7 +160,7 @@ export default function LeaderboardPage() {
             ) : error ? (
               <div className="text-center py-12">
                 <p className="text-destructive mb-4">{error}</p>
-                <Button onClick={fetchLeaderboard}>Retry</Button>
+                <Button onClick={() => fetchLeaderboard(true)}>Retry</Button>
               </div>
             ) : leaderboard.length === 0 ? (
               <div className="text-center py-12">

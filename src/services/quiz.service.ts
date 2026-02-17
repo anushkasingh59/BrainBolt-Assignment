@@ -47,7 +47,7 @@ export async function getOrCreateUserState(
     if (!user) {
     user = await User.create({
         externalId: userId,
-        username: generateUsername(),
+        username:  generateUsername()
     });
     }
 
